@@ -157,29 +157,29 @@ def evaluate(dataloader, cnn_model, rnn_model, batch_size):
     s_total_loss = 0
     w_total_loss = 0
     for step, data in enumerate(dataloader, 0):
-        real_imgs, captions, cap_lens, \
-                class_ids, keys = prepare_data(data)
+        real_imgs, captions, cap_lens, class_ids, keys = prepare_data(data)
 
-        words_features, sent_code = cnn_model(real_imgs)
-        nef, att_sze = words_features.size(1), words_features.size(2)
-        # hidden = rnn_model.init_hidden(batch_size)
-        # words_emb, sent_emb = rnn_model(captions, cap_lens, hidden)
-        hidden = rnn_model.module.init_hidden(batch_size)
-        words_emb, sent_emb = rnn_model.module(captions, cap_lens, hidden)
-
-        w_loss0, w_loss1, attn = words_loss(words_features, words_emb, labels,
-                                           cap_lens, class_ids, batch_size)
-        w_total_loss += (w_loss0 + w_loss1).item()
+        # Fix: Use the last element of real_imgs list which is the highest resolution image
+        words_features, sent_code = cnn_model(real_imgs[-1])  # Changed this line
         
-        s_loss0, s_loss1 = \
-            sent_loss(sent_code, sent_emb, labels, class_ids, batch_size)
+        nef = words_features.size(1)
+        hidden = rnn_model.init_hidden(batch_size)
+        words_emb, sent_emb = rnn_model(captions, cap_lens, hidden)
+
+        w_loss0, w_loss1, attn = words_loss(
+            words_features, words_emb, labels, cap_lens, class_ids, batch_size
+        )
+        w_total_loss += (w_loss0 + w_loss1).item()
+
+        s_loss0, s_loss1 = sent_loss(
+            sent_code, sent_emb, labels, class_ids, batch_size
+        )
         s_total_loss += (s_loss0 + s_loss1).item()
 
     s_cur_loss = s_total_loss / step
     w_cur_loss = w_total_loss / step
-    
-    return s_cur_loss, w_cur_loss
 
+    return s_cur_loss, w_cur_loss
 
 def build_models():
     # build model ############################################################
