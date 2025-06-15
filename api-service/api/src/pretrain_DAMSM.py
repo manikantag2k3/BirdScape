@@ -10,6 +10,8 @@ from api.src.dataset import prepare_data
 
 from api.src.model import RNN_ENCODER, CNN_ENCODER
 
+print("changed code")
+
 import os
 import sys
 import time
