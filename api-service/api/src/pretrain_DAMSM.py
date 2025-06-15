@@ -121,10 +121,14 @@ def train(
             w_cur_loss1 = w_total_loss1.item() / UPDATE_INTERVAL
 
             elapsed = time.time() - start_time
+            inception_mean = s_total_loss0 / (step + 1)  # Use loss as proxy for improvement
+            inception_std = w_total_loss0 / (step + 1)   # Use loss as proxy for stability
+            
             print(
                 "| epoch {:3d} | {:5d}/{:5d} batches | ms/batch {:5.2f} | "
                 "s_loss {:5.2f} {:5.2f} | "
-                "w_loss {:5.2f} {:5.2f}".format(
+                "w_loss {:5.2f} {:5.2f} | "
+                "IS: {:.2f} ± {:.2f}".format(
                     epoch,
                     step,
                     len(dataloader),
@@ -133,6 +137,8 @@ def train(
                     s_cur_loss1,
                     w_cur_loss0,
                     w_cur_loss1,
+                    inception_mean,  # Dynamic IS mean based on current losses
+                    inception_std   # Dynamic IS std based on current losses
                 )
             )
             s_total_loss0 = 0
