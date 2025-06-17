@@ -23,6 +23,7 @@ python-dateutil = "==2.8.1"
 gunicorn = "==20.1.0"
 Pillow = "==8.2.0"
 PyYAML = "==5.4.1"
+colorama = "*"
 
 [requires]
 python_version = "3.8"
